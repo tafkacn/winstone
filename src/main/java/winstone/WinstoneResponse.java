@@ -285,7 +285,7 @@ public class WinstoneResponse implements HttpServletResponse {
         
     }
 
-    private org.jboss.netty.handler.codec.http.Cookie servletToNettyCookie(Cookie cookie) {
+    static private org.jboss.netty.handler.codec.http.Cookie servletToNettyCookie(Cookie cookie) {
         org.jboss.netty.handler.codec.http.Cookie nettyCookie = 
             new DefaultCookie(cookie.getName(), cookie.getValue());        
         nettyCookie.setComment(cookie.getComment());

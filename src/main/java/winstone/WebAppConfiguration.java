@@ -1208,7 +1208,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     private void processMapping(String name, String pattern, Map exactPatterns,
             List folderPatterns, List extensionPatterns) {
         
-        Mapping urlPattern = null;
+        Mapping urlPattern;
         try {
             urlPattern = Mapping.createFromURL(name, pattern);
         } catch (WinstoneException err) {
@@ -1367,14 +1367,17 @@ public class WebAppConfiguration implements ServletContext, Comparator {
      **************************************************************************/
 
     // Application level attributes
+    @Override
     public Object getAttribute(String name) {
         return this.attributes.get(name);
     }
 
+    @Override
     public Enumeration getAttributeNames() {
         return Collections.enumeration(this.attributes.keySet());
     }
 
+    @Override
     public void removeAttribute(String name) {
         Object me = this.attributes.get(name);
         this.attributes.remove(name);
@@ -1388,6 +1391,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
             }
     }
 
+    @Override
     public void setAttribute(String name, Object object) {
         if (object == null) {
             removeAttribute(name);
@@ -1415,32 +1419,39 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     }
 
     // Application level init parameters
+    @Override
     public String getInitParameter(String name) {
         return (String) this.initParameters.get(name);
     }
 
+    @Override
     public Enumeration getInitParameterNames() {
         return Collections.enumeration(this.initParameters.keySet());
     }
 
     // Server info
+    @Override
     public String getServerInfo() {
         return Launcher.RESOURCES.getString("ServerVersion");
     }
 
+    @Override
     public int getMajorVersion() {
         return 2;
     }
 
+    @Override
     public int getMinorVersion() {
         return 5;
     }
 
     // Weird mostly deprecated crap to do with getting servlet instances
+    @Override
     public javax.servlet.ServletContext getContext(String uri) {
         return this.ownerHostConfig.getWebAppByURI(uri);
     }
 
+    @Override
     public String getServletContextName() {
         return this.displayName;
     }
@@ -1448,6 +1459,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     /**
      * Look up the map of mimeType extensions, and return the type that matches
      */
+    @Override
     public String getMimeType(String fileName) {
         int dotPos = fileName.lastIndexOf('.');
         if ((dotPos != -1) && (dotPos != fileName.length() - 1)) {
@@ -1459,10 +1471,12 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     }
 
     // Context level log statements
+    @Override
     public void log(String message) {
         Logger.logDirectMessage(Logger.INFO, this.contextName, message, null);
     }
 
+    @Override
     public void log(String message, Throwable throwable) {
         Logger.logDirectMessage(Logger.ERROR, this.contextName, message, throwable);
     }
@@ -1471,6 +1485,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
      * Named dispatcher - this basically gets us a simple exact dispatcher (no
      * url matching, no request attributes and no security)
      */
+    @Override
     public javax.servlet.RequestDispatcher getNamedDispatcher(String name) {
         ServletConfiguration servlet = (ServletConfiguration) this.servletInstances.get(name);
         if (servlet != null) {
@@ -1487,6 +1502,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
      * Gets a dispatcher, which sets the request attributes, etc on a
      * forward/include. Doesn't execute security though.
      */
+    @Override
     public javax.servlet.RequestDispatcher getRequestDispatcher(
             String uriInsideWebapp) {
         if (uriInsideWebapp == null) {
@@ -1789,6 +1805,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     }
 
     // Getting resources via the classloader
+    @Override
     public URL getResource(String path) throws MalformedURLException {
         if (path == null) {
             return null;
@@ -1802,6 +1819,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
         return (res != null) && res.exists() ? res.toURL() : null;
     }
 
+    @Override
     public InputStream getResourceAsStream(String path) {
         try {
             URL res = getResource(path);
@@ -1812,6 +1830,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
         }
     }
 
+    @Override
     public String getRealPath(String path) {
         // Trim the prefix
         if (path == null)
@@ -1829,6 +1848,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
         }
     }
 
+    @Override
     public Set getResourcePaths(String path) {
         // Trim the prefix
         if (path == null)
@@ -1837,7 +1857,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
             throw new WinstoneException(Launcher.RESOURCES.getString(
                     "WebAppConfig.BadResourcePath", path));
         else {
-            String workingPath = null;
+            String workingPath;
             if (path.equals("/"))
                 workingPath = "";
             else {
@@ -1870,6 +1890,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     /**
      * @deprecated
      */
+    @Override
     public javax.servlet.Servlet getServlet(String name) {
         return null;
     }
@@ -1877,6 +1898,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     /**
      * @deprecated
      */
+    @Override
     public Enumeration getServletNames() {
         return Collections.enumeration(new ArrayList());
     }
@@ -1884,6 +1906,7 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     /**
      * @deprecated
      */
+    @Override
     public Enumeration getServlets() {
         return Collections.enumeration(new ArrayList());
     }
@@ -1891,110 +1914,137 @@ public class WebAppConfiguration implements ServletContext, Comparator {
     /**
      * @deprecated
      */
+    @Override
     public void log(Exception exception, String msg) {
         this.log(msg, exception);
     }
 
+    @Override
     public int getEffectiveMajorVersion() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public int getEffectiveMinorVersion() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public boolean setInitParameter(String string, String string1) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Dynamic addServlet(String string, String string1) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Dynamic addServlet(String string, Servlet srvlt) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Dynamic addServlet(String string, Class<? extends Servlet> type) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public <T extends Servlet> T createServlet(Class<T> type) throws ServletException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public ServletRegistration getServletRegistration(String string) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Map<String, ? extends ServletRegistration> getServletRegistrations() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String string, String string1) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String string, Filter filter) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public FilterRegistration.Dynamic addFilter(String string, Class<? extends Filter> type) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public <T extends Filter> T createFilter(Class<T> type) throws ServletException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public FilterRegistration getFilterRegistration(String string) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Map<String, ? extends FilterRegistration> getFilterRegistrations() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public SessionCookieConfig getSessionCookieConfig() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void setSessionTrackingModes(Set<SessionTrackingMode> set) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Set<SessionTrackingMode> getDefaultSessionTrackingModes() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public Set<SessionTrackingMode> getEffectiveSessionTrackingModes() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void addListener(String string) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public <T extends EventListener> void addListener(T t) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void addListener(Class<? extends EventListener> type) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public <T extends EventListener> T createListener(Class<T> type) throws ServletException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public JspConfigDescriptor getJspConfigDescriptor() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public ClassLoader getClassLoader() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
     public void declareRoles(String... strings) {
         throw new UnsupportedOperationException("Not supported yet.");
     }

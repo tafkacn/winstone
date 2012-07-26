@@ -149,7 +149,6 @@ public class RequestDispatcher implements javax.servlet.RequestDispatcher,
                 wr.addIncludeAttributes(this.webAppConfig.getContextPath() + this.requestURI, 
                         this.webAppConfig.getContextPath(), this.servletPath, this.pathInfo, this.queryString);
             }
-            // Add another include buffer to the response stack
             WinstoneResponse wresp = getUnwrappedResponse(response);
             wresp.startIncludeBuffer();
             

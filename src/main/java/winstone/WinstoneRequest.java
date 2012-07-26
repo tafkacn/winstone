@@ -57,7 +57,7 @@ public class WinstoneRequest implements HttpServletRequest {
     protected Map<String, Object> attributes;
     protected Map<String, String> parameters;
     protected Stack<Map<String, Object>> attributesStack;
-    protected Stack<Map<String, String>> parametersStack;
+    protected Stack<Map<String, String[]>> parametersStack;
 
     private HttpRequest request;
     
@@ -117,7 +117,7 @@ public class WinstoneRequest implements HttpServletRequest {
         this.parameters = new HashMap<String, String>();
         this.locales = new ArrayList();
         this.attributesStack = new Stack<Map<String, Object>>();
-        this.parametersStack = new Stack<Map<String, String>>();
+        this.parametersStack = new Stack<Map<String, String[]>>();
         this.requestedSessionIds = new HashMap<String, String>();
         this.currentSessionIds = new HashMap<String, String>();
         this.usedSessions = new HashSet();
@@ -465,8 +465,6 @@ public class WinstoneRequest implements HttpServletRequest {
                     else {
                         this.deadRequestedSessionId = thisCookie.getValue();
                     }
-//                    this.requestedSessionId = thisCookie.getValue();
-//                    this.currentSessionId = thisCookie.getValue();
                     Logger.log(Logger.FULL_DEBUG, Launcher.RESOURCES,
                             "WinstoneRequest.SessionCookieFound", 
                             new String[] {thisCookie.getValue(), 
@@ -559,11 +557,11 @@ public class WinstoneRequest implements HttpServletRequest {
     }
 
     public void addIncludeQueryParameters(String queryString) {
-        Map<String, String> lastParams = new HashMap<String, String>();
+        Map<String, String[]> lastParams = new HashMap<String, String[]>();
         if (!this.parametersStack.isEmpty()) {
             lastParams.putAll((Map) this.parametersStack.peek());
         }
-        Map<String, String> newQueryParams = new HashMap<String, String>();
+        Map<String, String[]> newQueryParams = new HashMap<String, String[]>();
         if (queryString != null) {
             extractParameters(queryString, this.encoding, newQueryParams, false);
         }
@@ -662,9 +660,7 @@ public class WinstoneRequest implements HttpServletRequest {
                 return attributeNamesIterator.next();
             }
         };
-    }
-
-    
+    }    
     
     @Override
     public void removeAttribute(final String name) {
@@ -1067,16 +1063,6 @@ public class WinstoneRequest implements HttpServletRequest {
 
     @Override
     public String getQueryString() {
-        if (queryString == null) {
-            queryString = "";
-            String requestURI = getRequestURI();
-            if (requestURI != null) {
-                int indexOfQuestionMark = requestURI.indexOf("?");
-                if (indexOfQuestionMark != -1) {
-                    queryString = requestURI.substring(indexOfQuestionMark + 1);
-                }
-            }
-        }        
         return queryString;
     }
 
