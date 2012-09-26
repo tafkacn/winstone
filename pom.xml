@@ -24,6 +24,7 @@
         <connection>scm:cvs:pserver:anonymous:@winstone.cvs.sourceforge.net:/cvsroot/winstone:winstone</connection>
         <url>http://winstone.cvs.sourceforge.net/winstone/winstone</url>
     </scm>
+<!--
     <repositories>
       <repository>
         <id>goldengate.releases</id>
@@ -37,6 +38,7 @@
         </snapshots>
       </repository>    
     </repositories>
+-->
     <build>
         <plugins>
             <plugin>
@@ -137,11 +139,13 @@
             <artifactId>netty</artifactId>
             <version>3.5.1.Final</version>
         </dependency>
+<!--
         <dependency>
             <groupId>NettyExtension</groupId>
             <artifactId>NettyExtension</artifactId>
             <version>1.1.13</version>
         </dependency>
+-->
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

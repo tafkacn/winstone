@@ -36,13 +36,22 @@ import org.jboss.netty.handler.codec.http.HttpRequest;
  * @version $Id: WinstoneRequest.java,v 1.41 2011/12/17 10:09:11 rickknowles Exp $
  */
 public class WinstoneRequest implements HttpServletRequest {
-    final protected static DateFormat headerDF = new SimpleDateFormat(
-            "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
-    protected static Random rnd = null;
-    static {
-        headerDF.setTimeZone(TimeZone.getTimeZone("GMT"));
-        rnd = new Random(System.currentTimeMillis());
-    }
+    final protected static ThreadLocal<DateFormat> threadLocalHeaderDF = new ThreadLocal<DateFormat>() {
+        @Override
+        public DateFormat initialValue() {
+            DateFormat result = new SimpleDateFormat(
+                "EEE, dd MMM yyyy HH:mm:ss z", Locale.US);
+            result.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return result;
+        }
+    };                        
+            
+    protected static ThreadLocal<Random> threadLocalRandom = new ThreadLocal<Random>() {
+        @Override
+        public Random initialValue() {
+            return new Random(System.currentTimeMillis());
+        }
+    };
 
     // Request header constants
     static final String IN_COOKIE_HEADER2 = "Cookie2";
@@ -64,7 +73,6 @@ public class WinstoneRequest implements HttpServletRequest {
     protected boolean parsedCookies = false;
     protected Cookie cookies[];
     
-    protected String method;
     protected String scheme;
     protected String serverName;
     protected String requestURI;
@@ -115,7 +123,6 @@ public class WinstoneRequest implements HttpServletRequest {
         long readTimeoutMillis) {
         this.attributes = new HashMap<String, Object>();
         this.parameters = new HashMap<String, String>();
-        this.locales = new ArrayList();
         this.attributesStack = new Stack<Map<String, Object>>();
         this.parametersStack = new Stack<Map<String, String[]>>();
         this.requestedSessionIds = new HashMap<String, String>();
@@ -356,7 +363,7 @@ public class WinstoneRequest implements HttpServletRequest {
                             "WinstoneRequest.ParamLine", "" + workingParameters);
                 }
                  
-                if (method.equals(METHOD_POST) && (contentType != null)
+                if (METHOD_POST.equals(getMethod()) && (contentType != null)
                         && (contentType.equals(POST_PARAMETERS)
                         || contentType.startsWith(POST_PARAMETERS + ";"))) {
                     Logger.log(Logger.FULL_DEBUG, Launcher.RESOURCES,
@@ -1008,9 +1015,7 @@ public class WinstoneRequest implements HttpServletRequest {
             return -1;
         } else try {
             Date date;
-            synchronized (headerDF) {
-                date = headerDF.parse(dateHeader);
-            }
+            date = threadLocalHeaderDF.get().parse(dateHeader);
             return date.getTime();
         } catch (java.text.ParseException err) {
             throw new IllegalArgumentException(Launcher.RESOURCES.getString(
@@ -1195,7 +1200,7 @@ public class WinstoneRequest implements HttpServletRequest {
      */
     private WinstoneSession makeNewSession() {
         String cookieValue = "Winstone_" + this.remoteIP + "_"
-                + this.serverPort + "_" + System.currentTimeMillis() + rnd.nextLong();
+                + this.serverPort + "_" + System.currentTimeMillis() + threadLocalRandom.get().nextLong();
         byte digestBytes[] = this.md5Digester.digest(cookieValue.getBytes());
 
         // Write out in hex format
