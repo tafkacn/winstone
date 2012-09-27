@@ -11,14 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -41,7 +34,7 @@ public class HostConfiguration implements Runnable {
 
     private String hostname;
     private Map args;
-    private Map webapps;
+    private Map<String, WebAppConfiguration> webapps;
     private Cluster cluster;
     private ClassLoader commonLibCL;
     private File commonLibCLPaths[];
@@ -52,7 +45,7 @@ public class HostConfiguration implements Runnable {
             File commonLibCLPaths[], Map args, String webappsDirName) throws IOException {
         this.hostname = hostname;
         this.args = args;
-        this.webapps = new Hashtable();
+        this.webapps = new HashMap<String, WebAppConfiguration>();
         this.cluster = cluster;
         this.commonLibCL = commonLibCL;
         this.commonLibCLPaths = commonLibCLPaths;
@@ -89,21 +82,28 @@ public class HostConfiguration implements Runnable {
     public WebAppConfiguration getWebAppByURI(String uri) {
         if (uri == null) {
             return null;
-        } else if (uri.equals("/") || uri.equals("")) {
-            return (WebAppConfiguration) this.webapps.get("");
-        } else if (uri.startsWith("/")) {
+        }
+        WebAppConfiguration webAppConfig = null;
+        if (uri.startsWith("/")) {
             String decoded = WinstoneRequest.decodeURLToken(uri);
             String noLeadingSlash = decoded.substring(1);
             int slashPos = noLeadingSlash.indexOf("/");
             if (slashPos == -1) {
-                return (WebAppConfiguration) this.webapps.get(decoded);
+                webAppConfig = (WebAppConfiguration) this.webapps.get(decoded);
             } else {
-                return (WebAppConfiguration) this.webapps.get(
+                webAppConfig = (WebAppConfiguration) this.webapps.get(
                         decoded.substring(0, slashPos + 1));
             }
-        } else {
-            return null;
         }
+        
+        if (webAppConfig == null) {
+            // Try root config
+            webAppConfig = (WebAppConfiguration) this.webapps.get("");
+            if (webAppConfig == null) {
+                webAppConfig = (WebAppConfiguration) this.webapps.get("/");
+            }            
+        }        
+        return webAppConfig;      
     }
     
     protected WebAppConfiguration initWebApp(String prefix, File webRoot, 
@@ -161,9 +161,8 @@ public class HostConfiguration implements Runnable {
     }
     
     public void invalidateExpiredSessions() {
-        Set webapps = new HashSet(this.webapps.values());
-        for (Iterator i = webapps.iterator(); i.hasNext(); ) {
-            ((WebAppConfiguration) i.next()).invalidateExpiredSessions();
+        for (WebAppConfiguration webAppConfig : webapps.values()) {
+            webAppConfig.invalidateExpiredSessions();
         }
     }
 
